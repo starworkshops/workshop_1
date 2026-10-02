@@ -60,7 +60,10 @@ solana balance ./.localnet/id.json --url devnet
 solana address --keypair ./.localnet/id.json
 anchor keys sync
 anchor build --arch v3
-anchor deploy
+anchor program deploy \
+  --provider.cluster devnet \
+  --provider.wallet ./.localnet/id.json \
+  --use-rpc
 npm run client:generate
 npm run build:web
 ```
