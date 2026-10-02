@@ -1,9 +1,11 @@
 import {
+  address,
   createClient,
   createKeyPairSignerFromBytes,
   getAddressEncoder,
   getBytesEncoder,
   getProgramDerivedAddress,
+  type Address,
   type TransactionSigner,
 } from "@solana/kit";
 import { solanaRpc } from "@solana/kit-plugin-rpc";
@@ -17,6 +19,7 @@ import {
 } from "./generated/js/src/generated/index";
 import {
   contentStoreLabel,
+  listContent,
   loadContent,
   saveContent,
   type ContentRecord,
@@ -43,6 +46,20 @@ const storeLabel = document.querySelector<HTMLElement>("[data-testid=store]")!;
 const walletControls = document.querySelector<HTMLElement>(
   "[data-testid=wallet-controls]",
 )!;
+const walletDialog =
+  document.querySelector<HTMLDialogElement>("#wallet-dialog")!;
+const walletList = document.querySelector<HTMLElement>(
+  "[data-testid=wallet-list]",
+)!;
+const walletClose = document.querySelector<HTMLButtonElement>(
+  "[data-wallet-close]",
+)!;
+const sealList = document.querySelector<HTMLElement>(
+  "[data-testid=seal-list]",
+)!;
+const sealCount = document.querySelector<HTMLElement>(
+  "[data-testid=seal-count]",
+)!;
 const form = document.querySelector<HTMLFormElement>("#seal-form")!;
 const title = document.querySelector<HTMLInputElement>("#title")!;
 const description =
@@ -58,6 +75,8 @@ type DemoClient = ReturnType<typeof createClient> & {
     context: { signature: string };
   }>;
 };
+
+type RpcClient = Pick<DemoClient, "rpc">;
 
 function canonicalContent(values: {
   title: string;
@@ -85,19 +104,19 @@ function toHex(bytes: Uint8Array | readonly number[]) {
   );
 }
 
-async function getSealAddress(author: TransactionSigner) {
+async function getSealAddress(author: Address) {
   const [address] = await getProgramDerivedAddress({
     programAddress: SOLANA_CONTENT_SEAL_PROGRAM_ADDRESS,
     seeds: [
       getBytesEncoder().encode(new TextEncoder().encode("seal")),
-      getAddressEncoder().encode(author.address),
+      getAddressEncoder().encode(author),
     ],
   });
   return address;
 }
 
 async function refresh(client: DemoClient, author: TransactionSigner) {
-  const sealAddress = await getSealAddress(author);
+  const sealAddress = await getSealAddress(author.address);
   const seal = await fetchMaybeContentSeal(client.rpc, sealAddress);
   const content = await loadContent(author.address);
 
@@ -142,12 +161,135 @@ async function refresh(client: DemoClient, author: TransactionSigner) {
   return seal;
 }
 
+function shortAddress(value: string) {
+  return `${value.slice(0, 6)}…${value.slice(-6)}`;
+}
+
+function safeSourceUrl(value: string) {
+  if (!value) return null;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "http:" || parsed.protocol === "https:"
+      ? parsed.href
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+async function renderSealCard(client: RpcClient, record: ContentRecord) {
+  const card = document.createElement("article");
+  card.className = "seal-card";
+
+  let state: "verified" | "invalid" | "warning" = "warning";
+  let verification = "No se encontró el sello on-chain";
+  let version = "—";
+
+  try {
+    const author = address(record.author);
+    const sealAddress = await getSealAddress(author);
+    const seal = await fetchMaybeContentSeal(client.rpc, sealAddress);
+    if (seal.exists) {
+      version = seal.data.version.toString();
+      const calculatedHash = toHex(
+        await sha256(
+          canonicalContent({
+            title: record.title,
+            description: record.description,
+            sourceUrl: record.source_url,
+          }),
+        ),
+      );
+      const matches =
+        seal.data.author === author &&
+        toHex(seal.data.contentHash) === calculatedHash;
+      state = matches ? "verified" : "invalid";
+      verification = matches
+        ? "Verificado on-chain"
+        : "El contenido no coincide";
+    }
+  } catch {
+    verification = "No se pudo verificar";
+  }
+
+  const top = document.createElement("div");
+  top.className = "seal-card-top";
+  const heading = document.createElement("h3");
+  heading.textContent = record.title;
+  const badge = document.createElement("span");
+  badge.className = "verification-badge";
+  badge.dataset.state = state;
+  badge.textContent = verification;
+  top.append(heading, badge);
+
+  const description = document.createElement("p");
+  description.className = "seal-description";
+  description.textContent = record.description;
+
+  const source = safeSourceUrl(record.source_url);
+  const sourceLink = document.createElement("a");
+  sourceLink.className = "source-link";
+  sourceLink.textContent = source ? "Abrir contenido ↗" : "Sin URL asociada";
+  if (source) {
+    sourceLink.href = source;
+    sourceLink.target = "_blank";
+    sourceLink.rel = "noreferrer";
+  } else {
+    sourceLink.removeAttribute("href");
+  }
+
+  const metadata = document.createElement("div");
+  metadata.className = "seal-metadata";
+  const wallet = document.createElement("div");
+  const walletLabel = document.createElement("span");
+  walletLabel.textContent = "Wallet firmante";
+  const walletValue = document.createElement("code");
+  walletValue.textContent = shortAddress(record.author);
+  walletValue.title = record.author;
+  wallet.append(walletLabel, walletValue);
+
+  const versionBlock = document.createElement("div");
+  const versionLabel = document.createElement("span");
+  versionLabel.textContent = "Versión";
+  const versionValue = document.createElement("strong");
+  versionValue.textContent = version;
+  versionBlock.append(versionLabel, versionValue);
+  metadata.append(wallet, versionBlock);
+
+  card.append(top, description, sourceLink, metadata);
+  return card;
+}
+
+async function refreshSealList(client: RpcClient) {
+  sealList.innerHTML = '<p class="empty-list">Actualizando sellos…</p>';
+  try {
+    const records = await listContent();
+    sealCount.textContent = `${records.length} ${records.length === 1 ? "sello" : "sellos"}`;
+    if (!records.length) {
+      sealList.innerHTML =
+        '<p class="empty-list">Todavía no hay sellos públicos. El primero puede ser el tuyo.</p>';
+      return;
+    }
+    const cards = await Promise.all(
+      records.map((record) => renderSealCard(client, record)),
+    );
+    sealList.replaceChildren(...cards);
+  } catch (error) {
+    sealCount.textContent = "No disponible";
+    sealList.innerHTML = "";
+    const message = document.createElement("p");
+    message.className = "empty-list error-copy";
+    message.textContent = `No se pudo cargar el registro público: ${error instanceof Error ? error.message : String(error)}`;
+    sealList.append(message);
+  }
+}
+
 async function activate(client: DemoClient, author: TransactionSigner) {
   submit.disabled = false;
   await refresh(client, author);
   status.textContent = `Conectado a ${chain === "solana:localnet" ? "Localnet" : "Devnet"}`;
 
-  form.addEventListener("submit", async (event) => {
+  form.onsubmit = async (event) => {
     event.preventDefault();
     submit.disabled = true;
     try {
@@ -157,7 +299,7 @@ async function activate(client: DemoClient, author: TransactionSigner) {
         sourceUrl: sourceUrl.value,
       };
       const contentHash = await sha256(canonicalContent(values));
-      const sealAddress = await getSealAddress(author);
+      const sealAddress = await getSealAddress(author.address);
       const existing = await fetchMaybeContentSeal(client.rpc, sealAddress);
       status.textContent = "Esperando firma y confirmación…";
       const instruction = existing.exists
@@ -177,16 +319,26 @@ async function activate(client: DemoClient, author: TransactionSigner) {
         description: values.description.trim(),
         source_url: values.sourceUrl.trim(),
         content_hash: toHex(contentHash),
+        updated_at: new Date().toISOString(),
       };
       await saveContent(record);
       await refresh(client, author);
+      await refreshSealList(client);
       status.textContent = `Confirmado · ${result.context.signature.slice(0, 12)}…`;
     } catch (error) {
       status.textContent = `Error · ${error instanceof Error ? error.message : String(error)}`;
     } finally {
       submit.disabled = false;
     }
-  });
+  };
+}
+
+function resetConnectedView() {
+  submit.disabled = true;
+  proofStatus.textContent = "Conectá una wallet para ver tu sello";
+  proofStatus.dataset.state = "empty";
+  proofHash.textContent = "—";
+  proofVersion.textContent = "0";
 }
 
 async function start() {
@@ -201,6 +353,7 @@ async function start() {
       .use(signer(author))
       .use(solanaRpc({ rpcUrl })) as unknown as DemoClient;
     walletControls.innerHTML = `<span>E2E local · <code>${author.address.slice(0, 8)}…</code></span>`;
+    await refreshSealList(client);
     await activate(client, author);
     return;
   }
@@ -209,15 +362,85 @@ async function start() {
     .use(walletSigner({ chain, storage: localStorage }))
     .use(solanaRpc({ rpcUrl }));
   await client.wallet.whenReady();
+  await refreshSealList(client as unknown as RpcClient);
 
   let activatedAddress: string | undefined;
+  const renderWalletOptions = () => {
+    const state = client.wallet.getState();
+    walletList.replaceChildren();
+
+    if (!state.wallets.length) {
+      const empty = document.createElement("p");
+      empty.className = "wallet-empty";
+      empty.textContent =
+        "No encontramos una wallet compatible. Instalá una wallet que implemente Wallet Standard y recargá la página.";
+      walletList.append(empty);
+      return;
+    }
+
+    for (const candidate of state.wallets) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "wallet-option";
+      button.disabled = state.status === "connecting";
+
+      const icon = document.createElement("img");
+      icon.src = candidate.icon;
+      icon.alt = "";
+      icon.width = 38;
+      icon.height = 38;
+
+      const name = document.createElement("span");
+      name.textContent = candidate.name;
+      const active = state.connected?.wallet.name === candidate.name;
+      const detail = document.createElement("small");
+      detail.textContent = active ? "Conectada" : "Conectar";
+      button.append(icon, name, detail);
+      button.addEventListener("click", () => {
+        status.textContent = `Conectando ${candidate.name}…`;
+        void client.wallet
+          .connect(candidate)
+          .then(() => walletDialog.close())
+          .catch(showFatal);
+      });
+      walletList.append(button);
+    }
+
+    if (state.connected) {
+      const disconnect = document.createElement("button");
+      disconnect.type = "button";
+      disconnect.className = "disconnect-button";
+      disconnect.textContent = "Desconectar wallet";
+      disconnect.addEventListener("click", () => {
+        void client.wallet
+          .disconnect()
+          .then(() => walletDialog.close())
+          .catch(showFatal);
+      });
+      walletList.append(disconnect);
+    }
+  };
+
   const renderWallets = () => {
     const state = client.wallet.getState();
     walletControls.replaceChildren();
+    const trigger = document.createElement("button");
+    trigger.type = "button";
+    trigger.className = "wallet-trigger";
+    trigger.disabled =
+      state.status === "pending" || state.status === "reconnecting";
+    trigger.textContent = state.connected
+      ? `${state.connected.wallet.name} · ${shortAddress(state.connected.account.address)}`
+      : state.status === "reconnecting"
+        ? "Reconectando wallet…"
+        : "Conectar wallet";
+    trigger.addEventListener("click", () => {
+      renderWalletOptions();
+      walletDialog.showModal();
+    });
+    walletControls.append(trigger);
+
     if (state.connected?.signer) {
-      const label = document.createElement("span");
-      label.innerHTML = `Wallet conectada · <code>${state.connected.account.address.slice(0, 8)}…</code>`;
-      walletControls.append(label);
       if (activatedAddress !== state.connected.account.address) {
         activatedAddress = state.connected.account.address;
         void activate(
@@ -225,26 +448,22 @@ async function start() {
           state.connected.signer,
         ).catch(showFatal);
       }
+      renderWalletOptions();
       return;
     }
-    if (!state.wallets.length) {
-      walletControls.textContent =
-        "Instalá una wallet compatible con Wallet Standard o ejecutá el E2E local.";
-      status.textContent = "Esperando una wallet";
-      return;
-    }
-    for (const candidate of state.wallets) {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.textContent = `Conectar ${candidate.name}`;
-      button.addEventListener("click", () => {
-        status.textContent = `Conectando ${candidate.name}…`;
-        void client.wallet.connect(candidate).catch(showFatal);
-      });
-      walletControls.append(button);
-    }
+
+    activatedAddress = undefined;
+    resetConnectedView();
+    status.textContent = state.wallets.length
+      ? "Conectá una wallet para crear o actualizar tu sello"
+      : "No se detectaron wallets compatibles";
+    renderWalletOptions();
   };
 
+  walletClose.addEventListener("click", () => walletDialog.close());
+  walletDialog.addEventListener("click", (event) => {
+    if (event.target === walletDialog) walletDialog.close();
+  });
   client.wallet.subscribe(renderWallets);
   renderWallets();
 }

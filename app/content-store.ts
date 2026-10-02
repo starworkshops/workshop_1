@@ -35,6 +35,29 @@ export async function loadContent(
   return data as ContentRecord | null;
 }
 
+export async function listContent(): Promise<ContentRecord[]> {
+  if (!supabase) {
+    const records = Object.keys(localStorage)
+      .filter((key) => key.startsWith("content-seal:"))
+      .map((key) => {
+        const value = localStorage.getItem(key);
+        return value ? (JSON.parse(value) as ContentRecord) : null;
+      })
+      .filter((record): record is ContentRecord => record !== null);
+
+    return records.sort((left, right) =>
+      (right.updated_at ?? "").localeCompare(left.updated_at ?? ""),
+    );
+  }
+
+  const { data, error } = await supabase
+    .from("content_seals")
+    .select("author,title,description,source_url,content_hash,updated_at")
+    .order("updated_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as ContentRecord[];
+}
+
 export async function saveContent(record: ContentRecord): Promise<void> {
   if (!supabase) {
     localStorage.setItem(

@@ -11,7 +11,7 @@
   </head>
   <body>
     <main>
-      <p class="eyebrow">SOLANA + SUPABASE</p>
+      <p class="eyebrow">WORKSHOP</p>
       <h1>Sello verificable</h1>
       <p class="intro">
         El contenido completo vive fuera de la cadena. Su huella criptográfica
@@ -22,60 +22,104 @@
         data-testid="wallet-controls"
         aria-live="polite"
       ></div>
-      <section class="proof" aria-labelledby="proof-title">
-        <div class="proof-main">
-          <p class="label" id="proof-title">VERIFICACIÓN</p>
-          <p class="proof-status" data-testid="proof-status" data-state="empty">
-            Preparando…
-          </p>
+      <section class="archive" aria-labelledby="archive-title">
+        <div class="archive-heading">
+          <div>
+            <p class="eyebrow">REGISTRO PÚBLICO</p>
+            <h2 id="archive-title">Sellos recientes</h2>
+            <p>
+              Cada tarjeta muestra el contenido externo y la wallet que dejó su
+              huella verificable en Solana.
+            </p>
+          </div>
+          <span class="seal-count" data-testid="seal-count">Cargando…</span>
         </div>
-        <div>
-          <p class="label">HASH ON-CHAIN</p>
-          <code data-testid="proof-hash">—</code>
-        </div>
-        <div>
-          <p class="label">VERSIÓN</p>
-          <strong data-testid="proof-version">0</strong>
+        <div class="seal-list" data-testid="seal-list" aria-live="polite">
+          <p class="empty-list">Consultando sellos…</p>
         </div>
       </section>
-      <form id="seal-form">
-        <div class="field-grid">
-          <label>
-            <span>Título</span>
-            <input
-              id="title"
-              required
-              maxlength="120"
-              value="Mi primera publicación"
-            />
-          </label>
-          <label>
-            <span>URL opcional</span>
-            <input
-              id="source-url"
-              type="url"
-              maxlength="500"
-              placeholder="https://…"
-            />
-          </label>
+      <section class="composer" aria-labelledby="composer-title">
+        <div class="composer-heading">
+          <p class="eyebrow">TU SELLO</p>
+          <h2 id="composer-title">Creá o actualizá el tuyo</h2>
+          <p>Conectá una wallet para firmar el hash de tu contenido.</p>
         </div>
-        <label>
-          <span>Descripción</span>
-          <textarea id="description" required maxlength="4000">
+        <section class="proof" aria-labelledby="proof-title">
+          <div class="proof-main">
+            <p class="label" id="proof-title">VERIFICACIÓN</p>
+            <p
+              class="proof-status"
+              data-testid="proof-status"
+              data-state="empty"
+            >
+              Preparando…
+            </p>
+          </div>
+          <div>
+            <p class="label">HASH ON-CHAIN</p>
+            <code data-testid="proof-hash">—</code>
+          </div>
+          <div>
+            <p class="label">VERSIÓN</p>
+            <strong data-testid="proof-version">0</strong>
+          </div>
+        </section>
+        <form id="seal-form">
+          <div class="field-grid">
+            <label>
+              <span>Título</span>
+              <input
+                id="title"
+                required
+                maxlength="120"
+                value="Mi primera publicación"
+              />
+            </label>
+            <label>
+              <span>URL opcional</span>
+              <input
+                id="source-url"
+                type="url"
+                maxlength="500"
+                placeholder="https://…"
+              />
+            </label>
+          </div>
+          <label>
+            <span>Descripción</span>
+            <textarea id="description" required maxlength="4000">
 Este contenido puede cambiar fuera de la cadena, pero su hash permite detectar cualquier modificación.</textarea>
-        </label>
-        <div class="action-row">
-          <p class="hint">
-            Contenido en <strong data-testid="store">…</strong> · SHA-256 en
-            Solana
-          </p>
-          <button type="submit">Sellar contenido</button>
-        </div>
-      </form>
-      <p class="status" data-testid="status" role="status">
-        Preparando conexión…
-      </p>
+          </label>
+          <div class="action-row">
+            <p class="hint">
+              Contenido en <strong data-testid="store">…</strong> · SHA-256 en
+              Solana
+            </p>
+            <button type="submit">Sellar contenido</button>
+          </div>
+        </form>
+        <p class="status" data-testid="status" role="status">
+          Preparando conexión…
+        </p>
+      </section>
     </main>
+    <dialog id="wallet-dialog" aria-labelledby="wallet-dialog-title">
+      <div class="wallet-dialog-heading">
+        <div>
+          <p class="eyebrow">SOLANA WALLET STANDARD</p>
+          <h2 id="wallet-dialog-title">Elegí una wallet</h2>
+        </div>
+        <button
+          class="icon-button"
+          type="button"
+          data-wallet-close
+          aria-label="Cerrar"
+        >
+          ×
+        </button>
+      </div>
+      <div class="wallet-list" data-testid="wallet-list"></div>
+    </dialog>
     <script type="module" src="/main.ts"></script>
   </body>
 </html>

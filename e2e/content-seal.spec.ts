@@ -20,6 +20,9 @@ test("a visitor seals and verifies external content", async ({ page }) => {
     String(previousVersion + 1),
   );
   await expect(page.getByTestId("proof-hash")).not.toHaveText("—");
+  await expect(page.getByTestId("seal-list")).toContainText("Publicación E2E");
+  await expect(page.getByTestId("seal-list")).toContainText("Wallet firmante");
+  await expect(page.getByTestId("seal-count")).toHaveText("1 sello");
 
   await page.evaluate(() => {
     const key = Object.keys(localStorage).find((candidate) =>
@@ -36,6 +39,9 @@ test("a visitor seals and verifies external content", async ({ page }) => {
 
   await expect(page.getByTestId("proof-status")).toHaveText(
     "✕ El contenido externo fue modificado",
+  );
+  await expect(page.getByTestId("seal-list")).toContainText(
+    "El contenido no coincide",
   );
   await page.screenshot({ path: "../assets/demo-ui.png", fullPage: true });
 });

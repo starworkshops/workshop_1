@@ -6,6 +6,8 @@ if (!walletPath)
   throw new Error("ANCHOR_WALLET is required. Run through `anchor test`.");
 
 const testWallet = readFileSync(walletPath, "utf8").trim();
+const port = Number(process.env.E2E_PORT ?? "4173");
+const baseURL = `http://127.0.0.1:${port}`;
 
 export default defineConfig({
   testDir: "./e2e",
@@ -13,14 +15,14 @@ export default defineConfig({
   retries: 0,
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL,
     trace: "retain-on-failure",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: "npm run dev -- --mode e2e",
-    url: "http://127.0.0.1:4173",
-    reuseExistingServer: !process.env.CI,
+    command: `npm run dev -- --mode e2e --port ${port}`,
+    url: baseURL,
+    reuseExistingServer: !process.env.CI && !process.env.E2E_PORT,
     env: {
       ...process.env,
       VITE_E2E_WALLET: testWallet,

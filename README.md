@@ -16,6 +16,8 @@ Ejemplo educativo de arquitectura híbrida. Supabase guarda un título, una desc
 
 - Una PDA determinística por wallet guarda una huella SHA-256 de 32 bytes.
 - Supabase conserva contenido grande, consultable y económico.
+- El registro público lista los sellos y la wallet firmante aun sin conectar una wallet.
+- Un único botón abre el selector de todas las wallets compatibles con Wallet Standard.
 - La aplicación compara el hash externo con el estado on-chain.
 - Una modificación en la base produce `El contenido externo fue modificado`.
 - El E2E cubre creación, firma, confirmación, verificación y detección de alteraciones.

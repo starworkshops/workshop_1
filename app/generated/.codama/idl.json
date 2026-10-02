@@ -99,9 +99,7 @@
     "errors": [
       {
         "code": 6000,
-        "docs": [
-          "VersionOverflow: La versión alcanzó su valor máximo"
-        ],
+        "docs": ["VersionOverflow: La versión alcanzó su valor máximo"],
         "kind": "errorNode",
         "message": "La versión alcanzó su valor máximo",
         "name": "versionOverflow"
