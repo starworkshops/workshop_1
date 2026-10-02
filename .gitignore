@@ -1,0 +1,13 @@
+.anchor
+.localnet
+test-results
+playwright-report
+.DS_Store
+.env
+.env.local
+.env.*.local
+target
+**/*.rs.bk
+node_modules
+test-ledger
+.yarn

@@ -1,0 +1,11 @@
+{
+  "idl": "/Users/jan/Documents/Codex/2026-10-01/me-dieron-como-x20/outputs/solana-content-seal-demo/app/generated/.codama/idl.json",
+  "scripts": {
+    "js": {
+      "args": [
+        "/Users/jan/Documents/Codex/2026-10-01/me-dieron-como-x20/outputs/solana-content-seal-demo/app/generated/js"
+      ],
+      "from": "@codama/renderers-js"
+    }
+  }
+}

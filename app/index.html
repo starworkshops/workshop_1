@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Sello verificable de contenido con Solana y Supabase"
+    />
+    <title>Sello verificable</title>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">SOLANA + SUPABASE</p>
+      <h1>Sello verificable</h1>
+      <p class="intro">
+        El contenido completo vive fuera de la cadena. Su huella criptográfica
+        queda firmada en Solana.
+      </p>
+      <div
+        class="wallet"
+        data-testid="wallet-controls"
+        aria-live="polite"
+      ></div>
+      <section class="proof" aria-labelledby="proof-title">
+        <div class="proof-main">
+          <p class="label" id="proof-title">VERIFICACIÓN</p>
+          <p class="proof-status" data-testid="proof-status" data-state="empty">
+            Preparando…
+          </p>
+        </div>
+        <div>
+          <p class="label">HASH ON-CHAIN</p>
+          <code data-testid="proof-hash">—</code>
+        </div>
+        <div>
+          <p class="label">VERSIÓN</p>
+          <strong data-testid="proof-version">0</strong>
+        </div>
+      </section>
+      <form id="seal-form">
+        <div class="field-grid">
+          <label>
+            <span>Título</span>
+            <input
+              id="title"
+              required
+              maxlength="120"
+              value="Mi primera publicación"
+            />
+          </label>
+          <label>
+            <span>URL opcional</span>
+            <input
+              id="source-url"
+              type="url"
+              maxlength="500"
+              placeholder="https://…"
+            />
+          </label>
+        </div>
+        <label>
+          <span>Descripción</span>
+          <textarea id="description" required maxlength="4000">
+Este contenido puede cambiar fuera de la cadena, pero su hash permite detectar cualquier modificación.</textarea>
+        </label>
+        <div class="action-row">
+          <p class="hint">
+            Contenido en <strong data-testid="store">…</strong> · SHA-256 en
+            Solana
+          </p>
+          <button type="submit">Sellar contenido</button>
+        </div>
+      </form>
+      <p class="status" data-testid="status" role="status">
+        Preparando conexión…
+      </p>
+    </main>
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>

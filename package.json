@@ -1,0 +1,38 @@
+{
+  "name": "solana-content-seal",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "program:build": "anchor build --ignore-keys --arch v3",
+    "client:generate": "anchor codama generate -l js -p app/generated target/idl/solana_content_seal.json && node scripts/fix-generated-package.mjs",
+    "setup": "npm run program:build && npm run client:generate",
+    "build:web": "vite build",
+    "test:integration": "tsx tests/integration.ts",
+    "test:e2e": "playwright test",
+    "test:all": "npm run test:integration && npm run test:e2e",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.117.2",
+    "@solana/kit": "8.4.0",
+    "@solana/kit-plugin-rpc": "0.19.0",
+    "@solana/kit-plugin-signer": "0.19.0",
+    "@solana/kit-plugin-wallet": "0.20.0"
+  },
+  "devDependencies": {
+    "@codama/renderers-js": "2.5.0",
+    "@playwright/test": "1.63.0",
+    "@types/node": "26.6.4",
+    "prettier": "3.9.9",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vite": "8.3.2"
+  }
+}

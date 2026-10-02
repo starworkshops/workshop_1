@@ -1,0 +1,436 @@
+{
+  "additionalPrograms": [],
+  "kind": "rootNode",
+  "program": {
+    "accounts": [
+      {
+        "data": {
+          "fields": [
+            {
+              "defaultValue": {
+                "data": "ef371b8ba8729fad",
+                "encoding": "base16",
+                "kind": "bytesValueNode"
+              },
+              "defaultValueStrategy": "omitted",
+              "docs": [],
+              "kind": "structFieldTypeNode",
+              "name": "discriminator",
+              "type": {
+                "kind": "fixedSizeTypeNode",
+                "size": 8,
+                "type": {
+                  "kind": "bytesTypeNode"
+                }
+              }
+            },
+            {
+              "docs": [],
+              "kind": "structFieldTypeNode",
+              "name": "author",
+              "type": {
+                "kind": "publicKeyTypeNode"
+              }
+            },
+            {
+              "docs": [],
+              "kind": "structFieldTypeNode",
+              "name": "contentHash",
+              "type": {
+                "count": {
+                  "kind": "fixedCountNode",
+                  "value": 32
+                },
+                "item": {
+                  "endian": "le",
+                  "format": "u8",
+                  "kind": "numberTypeNode"
+                },
+                "kind": "arrayTypeNode"
+              }
+            },
+            {
+              "docs": [],
+              "kind": "structFieldTypeNode",
+              "name": "version",
+              "type": {
+                "endian": "le",
+                "format": "u64",
+                "kind": "numberTypeNode"
+              }
+            },
+            {
+              "docs": [],
+              "kind": "structFieldTypeNode",
+              "name": "updatedAt",
+              "type": {
+                "endian": "le",
+                "format": "i64",
+                "kind": "numberTypeNode"
+              }
+            },
+            {
+              "docs": [],
+              "kind": "structFieldTypeNode",
+              "name": "bump",
+              "type": {
+                "endian": "le",
+                "format": "u8",
+                "kind": "numberTypeNode"
+              }
+            }
+          ],
+          "kind": "structTypeNode"
+        },
+        "discriminators": [
+          {
+            "kind": "fieldDiscriminatorNode",
+            "name": "discriminator",
+            "offset": 0
+          }
+        ],
+        "docs": [],
+        "kind": "accountNode",
+        "name": "contentSeal"
+      }
+    ],
+    "definedTypes": [],
+    "docs": [],
+    "errors": [
+      {
+        "code": 6000,
+        "docs": [
+          "VersionOverflow: La versión alcanzó su valor máximo"
+        ],
+        "kind": "errorNode",
+        "message": "La versión alcanzó su valor máximo",
+        "name": "versionOverflow"
+      }
+    ],
+    "events": [
+      {
+        "data": {
+          "kind": "hiddenPrefixTypeNode",
+          "prefix": [
+            {
+              "kind": "constantValueNode",
+              "type": {
+                "kind": "fixedSizeTypeNode",
+                "size": 8,
+                "type": {
+                  "kind": "bytesTypeNode"
+                }
+              },
+              "value": {
+                "data": "d5b25f3859d2a08d",
+                "encoding": "base16",
+                "kind": "bytesValueNode"
+              }
+            }
+          ],
+          "type": {
+            "fields": [
+              {
+                "docs": [],
+                "kind": "structFieldTypeNode",
+                "name": "author",
+                "type": {
+                  "kind": "publicKeyTypeNode"
+                }
+              },
+              {
+                "docs": [],
+                "kind": "structFieldTypeNode",
+                "name": "contentHash",
+                "type": {
+                  "count": {
+                    "kind": "fixedCountNode",
+                    "value": 32
+                  },
+                  "item": {
+                    "endian": "le",
+                    "format": "u8",
+                    "kind": "numberTypeNode"
+                  },
+                  "kind": "arrayTypeNode"
+                }
+              },
+              {
+                "docs": [],
+                "kind": "structFieldTypeNode",
+                "name": "version",
+                "type": {
+                  "endian": "le",
+                  "format": "u64",
+                  "kind": "numberTypeNode"
+                }
+              }
+            ],
+            "kind": "structTypeNode"
+          }
+        },
+        "discriminators": [
+          {
+            "constant": {
+              "kind": "constantValueNode",
+              "type": {
+                "kind": "fixedSizeTypeNode",
+                "size": 8,
+                "type": {
+                  "kind": "bytesTypeNode"
+                }
+              },
+              "value": {
+                "data": "d5b25f3859d2a08d",
+                "encoding": "base16",
+                "kind": "bytesValueNode"
+              }
+            },
+            "kind": "constantDiscriminatorNode",
+            "offset": 0
+          }
+        ],
+        "docs": [],
+        "kind": "eventNode",
+        "name": "contentSealed"
+      }
+    ],
+    "instructions": [
+      {
+        "accounts": [
+          {
+            "defaultValue": {
+              "kind": "pdaValueNode",
+              "pda": {
+                "docs": [],
+                "kind": "pdaNode",
+                "name": "seal",
+                "seeds": [
+                  {
+                    "kind": "constantPdaSeedNode",
+                    "type": {
+                      "kind": "bytesTypeNode"
+                    },
+                    "value": {
+                      "data": "3x5dTh",
+                      "encoding": "base58",
+                      "kind": "bytesValueNode"
+                    }
+                  },
+                  {
+                    "docs": [],
+                    "kind": "variablePdaSeedNode",
+                    "name": "author",
+                    "type": {
+                      "kind": "publicKeyTypeNode"
+                    }
+                  }
+                ]
+              },
+              "seeds": [
+                {
+                  "kind": "pdaSeedValueNode",
+                  "name": "author",
+                  "value": {
+                    "kind": "accountValueNode",
+                    "name": "author"
+                  }
+                }
+              ]
+            },
+            "docs": [],
+            "isOptional": false,
+            "isSigner": false,
+            "isWritable": true,
+            "kind": "instructionAccountNode",
+            "name": "seal"
+          },
+          {
+            "docs": [],
+            "isOptional": false,
+            "isSigner": true,
+            "isWritable": true,
+            "kind": "instructionAccountNode",
+            "name": "author"
+          },
+          {
+            "defaultValue": {
+              "identifier": "systemProgram",
+              "kind": "publicKeyValueNode",
+              "publicKey": "11111111111111111111111111111111"
+            },
+            "docs": [],
+            "isOptional": false,
+            "isSigner": false,
+            "isWritable": false,
+            "kind": "instructionAccountNode",
+            "name": "systemProgram"
+          }
+        ],
+        "arguments": [
+          {
+            "defaultValue": {
+              "data": "2efdb619e9b21d66",
+              "encoding": "base16",
+              "kind": "bytesValueNode"
+            },
+            "defaultValueStrategy": "omitted",
+            "docs": [],
+            "kind": "instructionArgumentNode",
+            "name": "discriminator",
+            "type": {
+              "kind": "fixedSizeTypeNode",
+              "size": 8,
+              "type": {
+                "kind": "bytesTypeNode"
+              }
+            }
+          },
+          {
+            "docs": [],
+            "kind": "instructionArgumentNode",
+            "name": "contentHash",
+            "type": {
+              "count": {
+                "kind": "fixedCountNode",
+                "value": 32
+              },
+              "item": {
+                "endian": "le",
+                "format": "u8",
+                "kind": "numberTypeNode"
+              },
+              "kind": "arrayTypeNode"
+            }
+          }
+        ],
+        "discriminators": [
+          {
+            "kind": "fieldDiscriminatorNode",
+            "name": "discriminator",
+            "offset": 0
+          }
+        ],
+        "docs": [],
+        "kind": "instructionNode",
+        "name": "initializeSeal",
+        "optionalAccountStrategy": "programId"
+      },
+      {
+        "accounts": [
+          {
+            "defaultValue": {
+              "kind": "pdaValueNode",
+              "pda": {
+                "docs": [],
+                "kind": "pdaNode",
+                "name": "seal",
+                "seeds": [
+                  {
+                    "kind": "constantPdaSeedNode",
+                    "type": {
+                      "kind": "bytesTypeNode"
+                    },
+                    "value": {
+                      "data": "3x5dTh",
+                      "encoding": "base58",
+                      "kind": "bytesValueNode"
+                    }
+                  },
+                  {
+                    "docs": [],
+                    "kind": "variablePdaSeedNode",
+                    "name": "author",
+                    "type": {
+                      "kind": "publicKeyTypeNode"
+                    }
+                  }
+                ]
+              },
+              "seeds": [
+                {
+                  "kind": "pdaSeedValueNode",
+                  "name": "author",
+                  "value": {
+                    "kind": "accountValueNode",
+                    "name": "author"
+                  }
+                }
+              ]
+            },
+            "docs": [],
+            "isOptional": false,
+            "isSigner": false,
+            "isWritable": true,
+            "kind": "instructionAccountNode",
+            "name": "seal"
+          },
+          {
+            "docs": [],
+            "isOptional": false,
+            "isSigner": true,
+            "isWritable": false,
+            "kind": "instructionAccountNode",
+            "name": "author"
+          }
+        ],
+        "arguments": [
+          {
+            "defaultValue": {
+              "data": "94336322bd317d94",
+              "encoding": "base16",
+              "kind": "bytesValueNode"
+            },
+            "defaultValueStrategy": "omitted",
+            "docs": [],
+            "kind": "instructionArgumentNode",
+            "name": "discriminator",
+            "type": {
+              "kind": "fixedSizeTypeNode",
+              "size": 8,
+              "type": {
+                "kind": "bytesTypeNode"
+              }
+            }
+          },
+          {
+            "docs": [],
+            "kind": "instructionArgumentNode",
+            "name": "contentHash",
+            "type": {
+              "count": {
+                "kind": "fixedCountNode",
+                "value": 32
+              },
+              "item": {
+                "endian": "le",
+                "format": "u8",
+                "kind": "numberTypeNode"
+              },
+              "kind": "arrayTypeNode"
+            }
+          }
+        ],
+        "discriminators": [
+          {
+            "kind": "fieldDiscriminatorNode",
+            "name": "discriminator",
+            "offset": 0
+          }
+        ],
+        "docs": [],
+        "kind": "instructionNode",
+        "name": "updateSeal",
+        "optionalAccountStrategy": "programId"
+      }
+    ],
+    "kind": "programNode",
+    "name": "solanaContentSeal",
+    "origin": "anchor",
+    "pdas": [],
+    "publicKey": "83JMuQzHAheSc9dMFaH4WcyPM4mo2jzmyDSAkR4HVbP4",
+    "version": "0.1.0"
+  },
+  "standard": "codama",
+  "version": "1.6.0"
+}
